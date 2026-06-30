@@ -3,9 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
+import { AuthModule } from './module/auth/auth.module';
 
 @Module({
-  imports: [CoreModule, SharedModule],
+  imports: [CoreModule, SharedModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
