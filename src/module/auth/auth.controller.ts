@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { SignInDto } from './dto/sign-in.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -20,6 +21,12 @@ export class AuthController {
     signIn(@Body() dto: SignInDto) {
         this.logger.log(`Received signup request from ${dto.email}`);
         return this.authService.signIn(dto);
+    }
+
+    @Post('refresh')
+    rotateTokens(@Body() dto: RefreshTokenDto) {
+        this.logger.log(`Received token rotation request`);
+        return this.authService.rotatetokens(dto);
     }
 
     @Get()

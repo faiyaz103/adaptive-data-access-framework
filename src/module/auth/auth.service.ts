@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { UserRole } from '@core/database/common/enums';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from './dto/sign-in.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -47,7 +48,7 @@ export class AuthService {
     // generate tokens
     async generateTokens(id: string, email: string, role: UserRole){
         // 3. Generate Tokens
-        const payload = { sub: id, email, role };
+        const payload = { sub: id, email, role, jti: crypto.randomUUID() };
         
         const [accessToken, refreshToken] = await Promise.all([
             // Access Token: Short lived (e.g., 15 minutes)
@@ -65,7 +66,8 @@ export class AuthService {
         // 4. Hash the refresh token before saving (CRITICAL BEST PRACTICE)
         // We use a lower salt round (e.g., 10) for refresh tokens since they are highly random strings 
         // and not vulnerable to dictionary attacks like passwords are.
-        const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+        const tokenToHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+        const hashedRefreshToken = await bcrypt.hash(tokenToHash, 10);
         // 5. Update user record with the hashed refresh token
         await this.userRepo.update(id, {
             refresh_token: hashedRefreshToken,
@@ -76,6 +78,39 @@ export class AuthService {
             refresh_token: refreshToken,
             // You can also return non-sensitive user data here if your frontend needs it
         };
+    }
+
+    // rotate tokens
+    async rotatetokens(dto: RefreshTokenDto){
+
+        const payload = await this.jwtService.verifyAsync(dto.refresh_token, {
+            secret: process.env.JWT_REFRESH_SECRET,
+        });
+
+        this.logger.debug(payload);
+
+        const user = await this.userRepo.findOne({
+            where: { id: payload.sub },
+            select: ['id', 'email', 'role', 'refresh_token'], 
+        });
+
+        if (!user || !user.refresh_token) {
+            throw new UnauthorizedException('Access denied');
+        }
+
+        const tokenToCompare = crypto.createHash('sha256').update(dto.refresh_token).digest('hex');
+        const isTokenValid = await bcrypt.compare(tokenToCompare, user.refresh_token);
+
+        if (!isTokenValid) {
+            // TOKEN REUSE / THEFT DETECTED
+            // The token is cryptographically valid (signed by us), but it DOES NOT match the DB.
+            // This usually means a hacker stole an old refresh token and is trying to use it.
+            // Industry Standard Response: Nuke the session immediately to protect the user.
+            await this.userRepo.update(user.id, { refresh_token: null });
+            throw new UnauthorizedException('Security alert: Invalid token reuse. Session revoked.');
+        }
+
+        return await this.generateTokens(user.id, user.email, user.role);
     }
 
     async signIn(dto: SignInDto) {
