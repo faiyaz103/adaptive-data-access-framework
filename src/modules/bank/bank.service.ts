@@ -38,7 +38,7 @@ export class BankService {
         const accountLastFour = this.getAccountLastFour(dto.accountNumberEnc);
     
         const bankInfo = this.bankRepo.create({
-            user: {id},
+            userId: user.id,
             branchName: dto.branchName,
             accountType: dto.accountType,
             accountHolderNameEnc: dto.accountHolderNameEnc,
