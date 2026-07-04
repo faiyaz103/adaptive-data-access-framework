@@ -4,7 +4,7 @@ import { UpdateBankDto } from './dto/update-bank.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '@core/database/entities/user.entity';
-import { Bank } from './entities/bank.entity';
+import { BankInfoEntity } from '@core/database/entities/bank-details.entity';
 
 @Injectable()
 export class BankService {
@@ -12,7 +12,7 @@ export class BankService {
 
     constructor(
         @InjectRepository(User) private readonly userRepo: Repository<User>,
-        @InjectRepository(Bank) private readonly bankRepo: Repository<Bank>,
+        @InjectRepository(BankInfoEntity) private readonly bankRepo: Repository<BankInfoEntity>,
     ){}
 
     private getAccountLastFour(accountNumber: string): string {
