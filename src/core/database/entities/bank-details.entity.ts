@@ -36,7 +36,7 @@ export class BankInfoEntity extends BaseEntity {
   @Column({ name: 'account_number_enc', type: 'text', transformer: new EncryptionTransformer() })
   accountNumberEnc!: string;
 
-  @Column({ name: 'account_last_four', type:'string', length: 4 })
+  @Column({ name: 'account_last_four', type:'varchar', length: 4 })
   accountLastFour!: string;
 
   @Column({ name: 'routing_number_enc', type: 'text', nullable: true, transformer: new EncryptionTransformer() })

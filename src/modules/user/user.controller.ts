@@ -16,7 +16,7 @@ export class UserController {
   }
 
   @ApiAuth()
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.CUSTOMER)
   @Get()
   findAll() {
     return this.userService.findAll();
