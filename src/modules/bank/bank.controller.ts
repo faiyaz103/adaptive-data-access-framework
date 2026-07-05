@@ -7,22 +7,28 @@ import { AuthenticatedUser } from '@shared/interfaces/authenticated-user.interfa
 import { ApiAuth } from '@shared/decorators/api-auth.decorator';
 import { Roles } from '@shared/decorators/roles.decorator';
 import { UserRole } from '@core/database/common/enums';
+import { UtilitiesService } from '@modules/utilities/utilities.service';
 
 @Controller('bank')
 export class BankController {
-  constructor(private readonly bankService: BankService) {}
-  
+  constructor(
+    private readonly bankService: BankService,
+    private readonly utilityService: UtilitiesService
+  ) {}
+
   @ApiAuth()
   @Roles(UserRole.CUSTOMER)
   @Post('details')
-  create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateBankDto) {
+  async create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateBankDto) {
+    await this.utilityService.createAccessLog(user.id);
     return this.bankService.create(user.id, dto);
   }
-  
+
   @ApiAuth()
   @Roles(UserRole.CUSTOMER)
   @Get('details')
-  findOne(@CurrentUser() user: AuthenticatedUser) {
+  async findOne(@CurrentUser() user: AuthenticatedUser) {
+    await this.utilityService.createAccessLog(user.id);
     return this.bankService.findOne(user.id);
   }
 

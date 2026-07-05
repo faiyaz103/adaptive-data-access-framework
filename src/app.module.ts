@@ -6,9 +6,10 @@ import { SharedModule } from './shared/shared.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { BankModule } from './modules/bank/bank.module';
+import { UtilitiesModule } from './modules/utilities/utilities.module';
 
 @Module({
-  imports: [CoreModule, SharedModule, AuthModule, UserModule, BankModule],
+  imports: [CoreModule, SharedModule, AuthModule, UserModule, BankModule, UtilitiesModule],
   controllers: [AppController],
   providers: [AppService],
 })

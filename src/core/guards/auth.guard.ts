@@ -34,8 +34,11 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token);
     //   this.logger.debug(`payload: ${JSON.stringify(payload)}`);
       // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
-      request['user'] = payload;
+      // so that we can access it in our route handlers.
+      // The JWT stores the user id in the standard `sub` claim, but all
+      // downstream code (controllers, access logging, owner-match checks)
+      // reads `user.id` — so we normalize it here in one place.
+      request['user'] = { ...payload, id: payload.sub };
 
     //   console.debug(`request after verifyAsync:`, inspect(request, { depth: 1, colors: true }));
     } catch {
