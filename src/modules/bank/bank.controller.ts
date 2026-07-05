@@ -28,8 +28,10 @@ export class BankController {
   @Roles(UserRole.CUSTOMER)
   @Get('details')
   async findOne(@CurrentUser() user: AuthenticatedUser) {
+    // Log BEFORE the service call so the current request is included
+    // in its own recent_request_count feature.
     await this.utilityService.createAccessLog(user.id);
-    return this.bankService.findOne(user.id);
+    return this.bankService.findOne(user);
   }
 
 

@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from '@modules/auth/auth.module';
 import { BankInfoEntity } from '@core/database/entities/bank-details.entity';
 import { UtilitiesModule } from '@modules/utilities/utilities.module';
+import { SecurityModule } from '@core/security/security.module';
 
 @Module({
     imports: [
@@ -15,7 +16,8 @@ import { UtilitiesModule } from '@modules/utilities/utilities.module';
             BankInfoEntity
         ]),
         AuthModule,
-        UtilitiesModule
+        UtilitiesModule,
+        SecurityModule
     ],
     controllers: [BankController],
     providers: [BankService],
