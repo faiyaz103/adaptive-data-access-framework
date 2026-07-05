@@ -10,6 +10,7 @@ import { UserRole } from '@core/database/common/enums';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from './dto/sign-in.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { UtilitiesService } from '@modules/utilities/utilities.service';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,8 @@ export class AuthService {
 
     constructor(
         @InjectRepository(User) private readonly userRepo: Repository<User>,
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+        private readonly utilityService: UtilitiesService,
     ){}
 
     // sign up
@@ -87,8 +89,6 @@ export class AuthService {
             secret: process.env.JWT_REFRESH_SECRET,
         });
 
-        this.logger.debug(payload);
-
         const user = await this.userRepo.findOne({
             where: { id: payload.sub },
             select: ['id', 'email', 'role', 'refresh_token'], 
@@ -107,6 +107,7 @@ export class AuthService {
             // This usually means a hacker stole an old refresh token and is trying to use it.
             // Industry Standard Response: Nuke the session immediately to protect the user.
             await this.userRepo.update(user.id, { refresh_token: null });
+            await this.utilityService.createFailedAttemptLog(user.id);
             throw new UnauthorizedException('Security alert: Invalid token reuse. Session revoked.');
         }
 
@@ -128,6 +129,7 @@ export class AuthService {
         // 2. Verify password
         const isPasswordValid = await bcrypt.compare(dto.password, user.password);
         if (!isPasswordValid) {
+            await this.utilityService.createFailedAttemptLog(user.id);
             throw new ForbiddenException('Invalid credentials');
         }
 

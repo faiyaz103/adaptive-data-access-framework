@@ -4,12 +4,14 @@ import { UtilitiesController } from './utilities.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '@core/database/entities/user.entity';
 import { AccessRequestEntity } from '@core/database/entities/access-request.entity';
+import { FailedAttemptEntity } from '@core/database/entities/failed-attempt.entity';
 
 @Module({
     imports:[
         TypeOrmModule.forFeature([
             User,
-            AccessRequestEntity
+            AccessRequestEntity,
+            FailedAttemptEntity
         ])
     ],
     controllers: [UtilitiesController],
