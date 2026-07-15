@@ -54,6 +54,7 @@ export class AdaptiveAleService {
   }
 
   /** Runs the transpiled Random Forest (~0.1 ms, in-process V8). */
+  
   assessRisk(context: AccessContext): RiskAssessment {
     const featureVector = this.buildFeatureVector(context);
 

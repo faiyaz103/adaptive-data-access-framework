@@ -1,6 +1,7 @@
 import { Column, Entity, Index, Unique } from "typeorm";
 import { BaseEntity } from "../common/base.entity";
 import { UserRole } from "../common/enums";
+import { EncryptionTransformer } from "@core/security/ale/transformers/encryption.transformer";
 
 @Entity('users')
 export class User extends BaseEntity {
